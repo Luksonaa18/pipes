@@ -1,34 +1,46 @@
-import { Body, Controller, Delete, Get, Param, Post } from '@nestjs/common';
-import { ExpensesServicePipe } from './pipes/toUpperCase.pipe';
-import { ExpenseServiceToLowerCase } from './pipes/toLowerCase.pipe';
-import { ExpensesDto } from './dto/create.expense.dto';
+import {
+  Controller,
+  Get,
+  Post,
+  Put,
+  Delete,
+  Param,
+  Query,
+  Body,
+} from '@nestjs/common';
 import { ExpensesService } from './expenses.service';
+import { ProductDto } from './dto/create.expense.dto';
+import { ValidatePricePipe } from './pipes/price-validate.pipe';
 
-@Controller('expenses')
+@Controller('products')
 export class ExpensesController {
-  constructor(private readonly expensesService: ExpensesService) {}
-  @Get('/all')
-  getAllExpenses() {
-    return this.expensesService.getAllExpenses();
+  constructor(private readonly productsService: ExpensesService) {}
+
+  @Get()
+  getAllProducts(
+    @Query('price', ValidatePricePipe) price?: number,
+    @Query('category') category?: string,
+  ) {
+    return this.productsService.getAllProducts({ price, category });
   }
-  @Get('/:role')
-  getExpenseByRole(@Param('role', ExpensesServicePipe) role: string) {
-    return `'expense by role ${role}'`;
+
+  @Get(':id')
+  getProductById(@Param('id') id: string) {
+    return this.productsService.getProductById(id);
   }
-  @Get('/roles/:role')
-  getExpenseByRoles(@Param('role', ExpenseServiceToLowerCase) role: string) {
-    return `'expense by role ${role}'`;
+
+  @Post()
+  createProduct(@Body() body: Omit<ProductDto, 'id' | 'createdAt'>) {
+    return this.productsService.createProduct(body);
   }
-  @Post('/new')
-  createExpense(@Body() body: ExpensesDto) {
-    return this.expensesService.createExpense(body);
+
+  @Put(':id')
+  updateProduct(@Param('id') id: string, @Body() body: Partial<ProductDto>) {
+    return this.productsService.updateProduct(id, body);
   }
-  @Delete('/:id')
-  deleteExpense(@Param('id') id: string) {
-    return this.expensesService.deleteExpense(id);
-  }
-  @Get('/find/:id')
-  findExpenseById(@Param('id') id: string) {
-    return this.expensesService.findExpenseById(id);
+
+  @Delete(':id')
+  deleteProduct(@Param('id') id: string) {
+    return this.productsService.deleteProduct(id);
   }
 }
