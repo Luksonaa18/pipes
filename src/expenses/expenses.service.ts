@@ -1,21 +1,19 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { ProductDto } from './dto/create.expense.dto';
 
 @Injectable()
 export class ExpensesService {
   private products: ProductDto[] = [];
 
-  getAllProducts(filters?: { price?: number; category?: string }) {
-    let result = this.products;
-
-    if (typeof filters?.price === 'number') {
-      result = result.filter((p) => p.price > (filters.price as number));
+  getAllProducts(price: number, category?: string) {
+    if (price <= 300) {
+      throw new BadRequestException('Price must be greater than 300');
     }
 
-    if (filters?.category) {
-      result = result.filter(
-        (p) => p.category.toLowerCase() === filters.category!.toLowerCase(),
-      );
+    let result = this.products.filter((p) => p.price > 300);
+
+    if (category) {
+      result = result.filter((p) => p.category === category);
     }
 
     return result;
@@ -50,5 +48,10 @@ export class ExpensesService {
   deleteProduct(id: string) {
     this.products = this.products.filter((p) => p.id !== id);
     return 'Product deleted';
+  }
+  filterProductsByRole(role: string) {
+    if (role === 'admin') {
+      return this.products;
+    }
   }
 }

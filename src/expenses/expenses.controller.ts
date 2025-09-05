@@ -18,12 +18,11 @@ export class ExpensesController {
 
   @Get()
   getAllProducts(
-    @Query('price', ValidatePricePipe) price?: number,
-    @Query('category') category?: string,
+    @Query('price', ValidatePricePipe) price = 0,
+    @Query('category') category = '',
   ) {
-    return this.productsService.getAllProducts({ price, category });
+    return this.productsService.getAllProducts(+price, category);
   }
-
   @Get(':id')
   getProductById(@Param('id') id: string) {
     return this.productsService.getProductById(id);
